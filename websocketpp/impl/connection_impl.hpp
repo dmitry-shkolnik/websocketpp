@@ -1710,7 +1710,8 @@ void connection<config>::terminate(lib::error_code const & ec) {
         m_local_close_reason = ec.message();
     }
 
-    // TODO: does any of this need a mutex?
+    // Fixes race condition: https://github.com/zaphoyd/websocketpp/issues/451
+    scoped_lock_type lock(m_connection_state_lock);
     if (m_is_http) {
         m_http_state = session::http_state::closed;
     }
